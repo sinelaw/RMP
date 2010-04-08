@@ -1,0 +1,28 @@
+Byte Value   Contents
+0    0xF0  USB Message Header (Start Byte)
+
+1          USB Command Identifier
+     0x55  CAN message
+
+2          Command type
+     0x01  CANA_DEV
+           Instructs UI to send message contents on CAN channel A (ignore on read)
+     0x05  USB CMD_RESET
+           Sends a soft reset to the UI processor.
+
+3    0x00  Ignore on read, send as 0.
+4    0x00  Ignore on read, send as 0.
+5    0x00  Ignore on read, send as 0.
+6          CAN Message Header (high byte)
+7          CAN Message Header (low byte)
+8    0x00  Ignore on read, send as 0.
+9          CAN Message Byte1
+10         CAN Message Byte 2
+11         CAN Message Byte 3
+12         CAN Message Byte 4
+13         CAN Message Byte 5
+14         CAN Message Byte 6
+15         CAN Message Byte 7
+16         CAN Message Byte 8
+17         USB Message Checksum (8 bit one's complement)
+

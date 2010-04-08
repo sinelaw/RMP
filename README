@@ -1,0 +1,7 @@
+Installation:
+-------------
+
+- Install libftdi-dev 
+- (or?) cabal install ftdi
+
+
