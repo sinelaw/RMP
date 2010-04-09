@@ -6,7 +6,6 @@ import Foreign.C.Types
 import Foreign 
 
 
-
 data RMPUSB
 data RMPPacket
 
@@ -28,7 +27,8 @@ foreign import ccall unsafe "rmpusb.h rmppacket_new"
   c_RMPPacketNew :: IO (Ptr RMPPacket)
                     
 foreign import ccall unsafe "rmpusb.h rmppacket_delete"
-  c_RMPPacketNew :: Ptr RMPPacket -> IO ()
+  c_RMPPacketDelete :: Ptr RMPPacket -> IO ()
 
 foreign import ccall unsafe "rmpusb.h rmppacket_set_command_velocity"
-  c_RMPPacketNew :: Ptr RMPPacket -> CInt -> CInt -> IO ()
+  c_RMPPacketSetCommandVelocity :: Ptr RMPPacket -> CInt -> CInt -> IO ()
+
