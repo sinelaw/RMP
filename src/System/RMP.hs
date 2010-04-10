@@ -1,33 +1,47 @@
 -- TODO: Check for null pointers and fail appropriately. perhaps use the ForeignPtrWrap module.
 
-module System.RMP where
+module System.RMP 
+    (Packet, rmp)
+    where
 
 import System.RMP.USB
-
-import Control.Processor(runUntil, IOSink, IOSource, IOProcessor, processor, wrapProcessor)
+import Foreign
+import Control.Processor(IOProcessor, wrapProcessor)
 
 type Packet = Ptr RMPPacket
+
+data RMPState = RMPState { rmpCtx :: Ptr RMPUSB, rmpReadPkt :: Packet }
 
 rmp :: IOProcessor Packet Packet -> IOProcessor () ()
 rmp = wrapProcessor readPacket writePacket allocRMP readConv writeConv releaseRMP 
     where 
-      readPacket :: () -> Ptr RMPUSB -> IO (Ptr RMPUSB)
-      readPacket pkt rmpusb = do
-        res <- c_RMPUSBReadPacket rmpusb pkt 
+      readPacket :: () -> RMPState -> IO RMPState
+      readPacket _ state = do
+        res <- rmpUsbReadPacket (rmpCtx state) (rmpReadPkt state)
         -- todo: deal with res != 0
-        return rmpusb
+        return state
       
-      writePacket :: Packet -> Ptr RMPUSB -> IO (Ptr RMPUSB)
-      writePacket pkt rmpusb = do
-        res <- c_RMPUSBWritePacket rmpusb pkt 
+      readConv :: RMPState -> IO Packet
+      readConv = return . rmpReadPkt
+      
+      writePacket :: Packet -> RMPState -> IO RMPState
+      writePacket pkt state = do
+        res <- rmpUsbWritePacket (rmpCtx state) pkt
         -- todo: deal with res != 0
-        return rmpusb
+        return state
       
-      allocRMP :: Packet -> IO (Ptr RMPUSB)
-      -- todo: currently ignores the first packet, leave as is?
-      allocRMP pkt = c_RMPUSBNew
+      writeConv :: RMPState -> IO ()
+      writeConv = const (return ())
       
-      releaseRMP :: Ptr RMPUSB -> IO ()
-      releaseRMP = c_RMPUSBDelete
+      allocRMP :: () -> IO RMPState
+      allocRMP _ = do
+        ctx <- rmpUsbNew
+        rPkt <- rmpPacketNew
+        return (RMPState ctx rPkt)
+      
+      releaseRMP :: RMPState -> IO ()
+      releaseRMP state = do
+        rmpPacketDelete (rmpReadPkt state)
+        rmpUsbDelete (rmpCtx state)
       
       
