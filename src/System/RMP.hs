@@ -6,6 +6,7 @@ import System.RMP.USB
 import Foreign
 import Foreign.C.Types
 import Control.Processor(IOProcessor, wrapProcessor, processor)
+import Control.Arrow((>>>),arr)
 
 type Packet = Ptr RMPPacket
 
@@ -42,18 +43,18 @@ rmp = wrapProcessor readPacket writePacket allocRMP readConv writeConv releaseRM
       releaseRMP state = do
         rmpPacketDelete (rmpReadPkt state)
         rmpUsbDelete (rmpCtx state)
-      
+
 -----------------------------------------------------------------------------
 
-velocityPacket :: IOProcessor (CInt, CInt) Packet
+velocityPacket :: Integral a => IOProcessor (a, a) Packet
 velocityPacket = processor proc alloc conv release 
     where
-      proc :: (CInt,CInt) -> Packet -> IO Packet
+      proc :: Integral a => (a,a) -> Packet -> IO Packet
       proc (trans, rot) pkt = do
-        rmpPacketSetCommandVelocity pkt trans rot 
+        rmpPacketSetCommandVelocity pkt (fromIntegral trans) (fromIntegral rot)
         return pkt
         
-      alloc :: (CInt,CInt) -> IO Packet
+      alloc :: Integral a => (a,a) -> IO Packet
       alloc _ = do
         pkt <- rmpPacketNew
         return pkt
@@ -71,4 +72,14 @@ velocityPacket = processor proc alloc conv release
 --             | PitchRoll { pitchAngle :: Double; pitchRate :: Double, rollAngle :: Double, rollRate :: Double }
 --             | VelocityYaw { wheelsVelocity :: (Double, Double), yawRate :: Double }
 --             | WheelDisplacement { wheelsDisplacement :: (Double, Double) }
-              
+
+      
+-----------------------------------------------------------------------------
+
+-- A dummy version of rmp that:
+-- 1. Ignores all robot telemetries
+-- 2. Can only send velocity commands
+simpleRMP :: Integral a => IOProcessor () (a, a) -> IOProcessor () ()
+simpleRMP controller = rmp (ignoreAll >>> controller >>> velocityPacket)
+    where ignoreAll = arr . const $ ()
+

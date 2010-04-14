@@ -5,11 +5,12 @@ import Control.Processor(runUntil, IOProcessor)
 
 import Control.Arrow
 
-controller :: IOProcessor Packet Packet
-controller = arr (const (-20,0)) >>> velocityPacket
+
+controller :: IOProcessor () (Int, Int)
+controller = arr . const $ (-20,0)
   
 controlledRobot :: IOProcessor () ()
-controlledRobot = rmp controller
+controlledRobot = simpleRMP controller
 
 main :: IO () 
 main = runUntil controlledRobot () (const . return $ False) 
