@@ -30,10 +30,23 @@ library
       src/System/RMP/rmpusb.cpp
       src/System/RMP/canio_rmpusb.cpp
    hs-Source-Dirs: src
---   include-dirs: src/System/RMP
-   extra-libraries: canlib,ftd2xx
+   extra-libraries: canlib,ftd2xx,stdc++
    build-depends: base >= 4, allocated-processor
    ghc-options: -Wall
+
+
+executable test-rmp
+  c-sources:
+      src/System/RMP/rmpusb.cpp
+      src/System/RMP/canio_rmpusb.cpp
+  hs-Source-Dirs: src
+  Build-Depends: base >=4 && <5, allocated-processor
+  main-is: Test.hs
+  Ghc-Options: -Wall 
+  Ghc-Prof-Options:  -prof -auto-all 
+  extra-libraries: canlib,ftd2xx,stdc++
+  other-modules: System.RMP.USB, System.RMP
+
 
 --source-repository head
 --  type: git

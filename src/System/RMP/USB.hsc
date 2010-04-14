@@ -36,5 +36,7 @@ foreign import ccall unsafe "rmpusb.h rmppacket_delete"
   rmpPacketDelete :: Ptr RMPPacket -> IO ()
 
 foreign import ccall unsafe "rmpusb.h rmppacket_set_command_velocity"
-  rmpPacketeSetCommandVelocity :: Ptr RMPPacket -> CInt -> CInt -> IO ()
+  rmpPacketSetCommandVelocity :: Ptr RMPPacket -> CInt -> CInt -> IO ()
+
+
 

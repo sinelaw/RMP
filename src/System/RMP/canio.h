@@ -11,13 +11,13 @@
 // Copied this from <canlib.h>. I assume that it's portable across CAN
 // implementations.
 #ifndef canMSG_STD
-  #define canMSG_STD              0x0002
+#define canMSG_STD              0x0002
 #endif
 
 
 class CanPacket
 {
-  public:
+public:
     long id;
     uint8_t msg[8];
     uint32_t dlc;
@@ -29,36 +29,36 @@ class CanPacket
     }
 
     void Clear() {
-      memset(msg,0,sizeof(msg));
+        memset(msg,0,sizeof(msg));
 
-      flags = canMSG_STD;
-      dlc = 8;
+        flags = canMSG_STD;
+        dlc = 8;
     }
     
     uint16_t GetSlot(int s)  const 
     {
-      return (uint16_t) ((msg[s*2] << 8) | (msg[s*2+1]));
+        return (uint16_t) ((msg[s*2] << 8) | (msg[s*2+1]));
     }
 
     void PutSlot(const int slot, const uint16_t val) 
     {
-      msg[slot*2] = (val >> 8) & 0xFF;
-      msg[slot*2+1] = val & 0xFF;
+        msg[slot*2] = (val >> 8) & 0xFF;
+        msg[slot*2+1] = val & 0xFF;
     }
 
     void PutByte(const int byte, const uint16_t val) 
     {
-      msg[byte] = val & 0xFF;
+        msg[byte] = val & 0xFF;
     }
 
     char* toString() 
     {
-      static char buf[256];
-      sprintf(buf, "id:%04lX %02X %02X %02X %02X %02X %02X %02X %02X",
-              id, msg[0], msg[1], msg[2], msg[3], msg[4], msg[5], 
-              msg[6], msg[7]);
+        static char buf[256];
+        sprintf(buf, "id:%04lX %02X %02X %02X %02X %02X %02X %02X %02X",
+                id, msg[0], msg[1], msg[2], msg[3], msg[4], msg[5], 
+                msg[6], msg[7]);
 
-      return buf;
+        return buf;
     }
 };
 
@@ -82,7 +82,7 @@ class CanPacket
 
 class CANIO
 {
-  public:
+public:
     CANIO() {}
     virtual ~CANIO() {}
     virtual int Init() = 0;

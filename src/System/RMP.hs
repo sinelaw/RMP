@@ -1,12 +1,11 @@
 -- TODO: Check for null pointers and fail appropriately. perhaps use the ForeignPtrWrap module.
 
-module System.RMP 
-    (Packet, rmp)
-    where
+module System.RMP where
 
 import System.RMP.USB
 import Foreign
-import Control.Processor(IOProcessor, wrapProcessor)
+import Foreign.C.Types
+import Control.Processor(IOProcessor, wrapProcessor, processor)
 
 type Packet = Ptr RMPPacket
 
@@ -44,4 +43,32 @@ rmp = wrapProcessor readPacket writePacket allocRMP readConv writeConv releaseRM
         rmpPacketDelete (rmpReadPkt state)
         rmpUsbDelete (rmpCtx state)
       
+-----------------------------------------------------------------------------
+
+velocityPacket :: IOProcessor (CInt, CInt) Packet
+velocityPacket = processor proc alloc conv release 
+    where
+      proc :: (CInt,CInt) -> Packet -> IO Packet
+      proc (trans, rot) pkt = do
+        rmpPacketSetCommandVelocity pkt trans rot 
+        return pkt
+        
+      alloc :: (CInt,CInt) -> IO Packet
+      alloc _ = do
+        pkt <- rmpPacketNew
+        return pkt
+
+      conv :: Packet -> IO Packet
+      conv = return
       
+      release :: Packet -> IO ()
+      release pkt = do
+        rmpPacketDelete pkt
+      
+
+
+-- data Packet = Empty 
+--             | PitchRoll { pitchAngle :: Double; pitchRate :: Double, rollAngle :: Double, rollRate :: Double }
+--             | VelocityYaw { wheelsVelocity :: (Double, Double), yawRate :: Double }
+--             | WheelDisplacement { wheelsDisplacement :: (Double, Double) }
+              

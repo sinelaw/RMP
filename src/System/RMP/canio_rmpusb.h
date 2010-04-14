@@ -7,9 +7,9 @@
 
 class CANIOrmpusb : public CANIO
 {
-  private:
-	FT_STATUS	ftStatus;
-	FT_HANDLE	ftHandle;
+private:
+    FT_STATUS	ftStatus;
+    FT_HANDLE	ftHandle;
     static const unsigned int RX_BUFFER_SIZE = 65536;
     static const unsigned int RX_WARNING_SIZE = 500;
     static const unsigned int RX_KEEP_SIZE = 200;
@@ -39,7 +39,7 @@ class CANIOrmpusb : public CANIO
     };
 
     
-  public:
+public:
     CANIOrmpusb(const char* serial=NULL);
     virtual ~CANIOrmpusb();
     virtual int Init();
