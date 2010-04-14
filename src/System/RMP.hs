@@ -12,6 +12,8 @@ type Packet = Ptr RMPPacket
 
 data RMPState = RMPState { rmpCtx :: Ptr RMPUSB, rmpReadPkt :: Packet }
 
+-- | A processor wrapper: Takes the robot controller (something that reads telemetries and sends commands)
+-- and returns an IOProcessor that runs the robot.
 rmp :: IOProcessor Packet Packet -> IOProcessor () ()
 rmp = wrapProcessor readPacket writePacket allocRMP readConv writeConv releaseRMP 
     where 
@@ -76,10 +78,33 @@ velocityPacket = processor proc alloc conv release
       
 -----------------------------------------------------------------------------
 
--- A dummy version of rmp that:
--- 1. Ignores all robot telemetries
--- 2. Can only send velocity commands
-simpleRMP :: Integral a => IOProcessor () (a, a) -> IOProcessor () ()
-simpleRMP controller = rmp (ignoreAll >>> controller >>> velocityPacket)
-    where ignoreAll = arr . const $ ()
+-- | A dummy version of rmp that:
+--        
+-- 1. Does not read from the robot (Ignores all robot telemetries)
+--
+-- 2. Can only send commands
+--
+-- it's really an IOSink.
+--
+simpleRMP :: IOProcessor Packet ()
+simpleRMP = processor writePacket allocRMP writeConv releaseRMP 
+    where 
+      writePacket :: Packet -> (Ptr RMPUSB) -> IO (Ptr RMPUSB)
+      writePacket pkt rmpUsb = do
+        res <- rmpUsbWritePacket rmpUsb pkt
+        -- todo: deal with res != 0
+        return rmpUsb
+      
+      writeConv :: (Ptr RMPUSB) -> IO ()
+      writeConv = const . return $ ()
+      
+      allocRMP :: Packet -> IO (Ptr RMPUSB)
+      allocRMP _ = rmpUsbNew
+      
+      releaseRMP :: (Ptr RMPUSB) -> IO ()
+      releaseRMP = rmpUsbDelete
 
+
+-- | An even simple RMP interface, that supports only sending velocity commands, and nothing more.
+velocityRMP :: Integral a => IOProcessor (a,a) ()
+velocityRMP = velocityPacket >>> simpleRMP

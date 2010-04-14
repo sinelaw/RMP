@@ -35,18 +35,30 @@ library
    ghc-options: -Wall
 
 
-executable test-rmp
+executable rmp-test
+  main-is: Test.hs
   c-sources:
       src/System/RMP/rmpusb.cpp
       src/System/RMP/canio_rmpusb.cpp
   hs-Source-Dirs: src
   Build-Depends: base >=4 && <5, allocated-processor
-  main-is: Test.hs
   Ghc-Options: -Wall 
   Ghc-Prof-Options:  -prof -auto-all 
   extra-libraries: canlib,ftd2xx,stdc++
   other-modules: System.RMP.USB, System.RMP
 
+
+executable rmp-test-facedetect
+  main-is: FaceFollowTest.hs
+  c-sources:
+      src/System/RMP/rmpusb.cpp
+      src/System/RMP/canio_rmpusb.cpp
+  hs-Source-Dirs: src
+  Build-Depends: base >=4 && <5, allocated-processor, cv-combinators, HOpenCV, vector-space
+  Ghc-Options: -Wall   -fno-warn-type-defaults
+  Ghc-Prof-Options:  -prof -auto-all 
+  extra-libraries: canlib,ftd2xx,stdc++
+  other-modules: System.RMP.USB, System.RMP
 
 --source-repository head
 --  type: git

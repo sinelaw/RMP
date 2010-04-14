@@ -9,8 +9,5 @@ import Control.Arrow
 controller :: IOProcessor () (Int, Int)
 controller = arr . const $ (-20,0)
   
-controlledRobot :: IOProcessor () ()
-controlledRobot = simpleRMP controller
-
 main :: IO () 
-main = runUntil controlledRobot () (const . return $ False) 
+main = runUntil (controller >>> velocityRMP) () (const . return $ False) 
