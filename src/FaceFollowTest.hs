@@ -11,13 +11,14 @@ import AI.CV.OpenCV.Types(PImage)
 
 import System.RMP(velocityRMP)
 
-import Control.Processor(runUntil, IOProcessor, (--<), trace, fir, headOrLast)
+import Control.Processor(runUntil, IOProcessor, (--<), trace, fir, revertAfterT, holdMaybe)
 import Data.VectorSpace(zeroV, (^-^), (^*), AdditiveGroup)
 
 import Control.Monad(join)
 import Prelude hiding ((.),id)
 import Control.Arrow
 import Control.Category
+import Data.Maybe(listToMaybe)
 
 import qualified Debug.Trace as DT
 traceId x = DT.trace (show x) x
@@ -64,7 +65,7 @@ dirToRotation (yRot, xRot) = - (absMax 200 (yRot*4) )
 -- | calculates the (translation, rotation) pair used to control the robot, from a detected rect.
 -- currently translation is constantly 0.
 calcTransRot :: (Num c, Ord c, Integral c, Integral a, Integral b, AdditiveGroup b) => a -> a -> CvRect -> (c, b)
-calcTransRot resX resY = (absMax 35 . (flip div 10) . calcDist (fromIntegral ((resX*resY) `div` 15)))  &&& 
+calcTransRot resX resY = (absMax 40 . (flip div 5) . calcDist (fromIntegral ((resX*resY) `div` 30)))  &&& 
                          (calcDir resX resY >>> dirToRotation)
 
 -- todo: a better solution than choosing the default if no faces detected, would be to keep tracking the last
@@ -79,7 +80,8 @@ main :: IO ()
 main = runTillKeyPressed (videoSource >>> imageResizeTo resX resY 
              >>> (id &&& averageFace) >>> ((second (faceToVel >>> trace >>> velocityRMP)) &&& showVideo))
       where showVideo = (second . arr $ return) >>> ImageProcessors.drawRects >>> ImageProcessors.window 0
-            averageFace = fir [0.9,0.1] 1 clock (headOrLast zeroV clock faceDetect)
+            averageFace = fir [0.9,0.1] 1 clock lastFace
+            lastFace = revertAfterT 5 zeroV . holdMaybe zeroV clock $ (faceDetect >>> arr listToMaybe)
             resX = 160
             resY = 120
             faceToVel = controller resX resY
