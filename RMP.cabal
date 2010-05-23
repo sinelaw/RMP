@@ -1,5 +1,5 @@
 name: RMP
-version: 0.0.1
+version: 0.0.2
 license: BSD3
 maintainer: Noam Lewis <jones.noamle@gmail.com>
 bug-reports: mailto:jones.noamle@gmail.com
@@ -31,7 +31,7 @@ library
       src/System/RMP/canio_rmpusb.cpp
    hs-Source-Dirs: src
    extra-libraries: canlib,ftd2xx,stdc++
-   build-depends: base >= 4, allocated-processor
+   build-depends: base >= 4, allocated-processor >= 0.0.2
    ghc-options: -Wall
 
 
@@ -41,7 +41,7 @@ executable rmp-test
       src/System/RMP/rmpusb.cpp
       src/System/RMP/canio_rmpusb.cpp
   hs-Source-Dirs: src
-  Build-Depends: base >=4 && <5, allocated-processor
+  Build-Depends: base >=4 && <5, allocated-processor >= 0.0.2
   Ghc-Options: -Wall 
   Ghc-Prof-Options:  -prof -auto-all 
   extra-libraries: canlib,ftd2xx,stdc++
@@ -54,7 +54,7 @@ executable rmp-test-facedetect
       src/System/RMP/rmpusb.cpp
       src/System/RMP/canio_rmpusb.cpp
   hs-Source-Dirs: src
-  Build-Depends: base >=4 && <5, allocated-processor, cv-combinators, HOpenCV, vector-space
+  Build-Depends: base >=4 && <5, allocated-processor >= 0.0.2, cv-combinators >= 0.1.2.3, HOpenCV, vector-space
   Ghc-Options: -Wall   -fno-warn-type-defaults
   Ghc-Prof-Options:  -prof -auto-all 
   extra-libraries: canlib,ftd2xx,stdc++
